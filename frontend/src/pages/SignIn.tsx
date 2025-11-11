@@ -20,6 +20,7 @@ const SignIn: React.FC = () => {
     
     try {
       SignIn({email, password, role});
+      alert("User Is Loged In ✔✔✔");
       navigate('/')
     } catch (err: any) {
       setError(err.response?.data?.message || 'فشل تسجيل الدخول. يرجى التحقق من بياناتك والمحاولة مرة أخرى.')
