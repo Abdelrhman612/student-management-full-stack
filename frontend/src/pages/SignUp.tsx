@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Card, Form, Button, Alert, Spinner, Container, Row, Col } from 'react-bootstrap'
-import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { PersonPlus, Eye, EyeSlash, Person } from 'react-bootstrap-icons'
 
@@ -45,7 +44,7 @@ const SignUp: React.FC = () => {
     
     try {
       SignUp({name, email, password});
-      alert("User Is Signed Up ✔✔✔");
+     alert("✅ تم إنشاء الحساب بنجاح");
       navigate('/signin')
     } catch (err: any) {
       setError(err.response?.data?.message || 'فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.')
