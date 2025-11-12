@@ -28,7 +28,7 @@ namespace student_management.Controllers
 
         // Allow only Staff and SystemUser roles
         [HttpGet("{id}")]
-        [Authorize(Roles = $"{nameof(Roles.Staff)},{nameof(Roles.SystemUser)}")]
+        [Authorize(Roles = $"{nameof(Roles.Staff)},{nameof(Roles.Student)}")]
         public async Task<IActionResult> GetStudent(int id)
         {
             var student = await _studentService.GetStudent(id);
@@ -49,7 +49,7 @@ namespace student_management.Controllers
 
         // Only Staff or SystemUser can update
         [HttpPatch("{id}")]
-        [Authorize(Roles = $"{nameof(Roles.Staff)},{nameof(Roles.SystemUser)}")]
+        [Authorize(Roles = $"{nameof(Roles.Staff)}")]
         public async Task<IActionResult> UpdateStudent([FromBody] UpdateStudentDto updateStudentDto, int id)
         {
             var student = await _studentService.UpdateStudent(updateStudentDto, id);
@@ -58,7 +58,7 @@ namespace student_management.Controllers
 
         //  Only SystemUser can delete
         [HttpDelete("{id}")]
-        [Authorize(Roles = nameof(Roles.SystemUser))]
+        [Authorize(Roles = nameof(Roles.Staff))]
         public async Task<IActionResult> DeleteStudent(int id)
         {
             var student = await _studentService.DeleteStudent(id);
