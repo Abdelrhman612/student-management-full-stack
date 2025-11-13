@@ -1,91 +1,84 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using student_management.data;
 using student_management.data.Models;
 using student_management.Dto;
 using student_management.InterFaces;
+using student_management.Repositories;
 
 namespace student_management.Services
 {
     public class StudentService : IStudentService
     {
-        private readonly AppDbContext _db;
-        public StudentService(AppDbContext db)
+        private readonly IStudentRepository _studentRepository;
+
+        public StudentService(IStudentRepository studentRepository)
         {
-            _db = db;
+            _studentRepository = studentRepository;
         }
 
-        public async Task<IEnumerable<Student>> GetStudents()
+        public async Task<IEnumerable<Students>> GetStudents()
         {
-            var students = await _db.Students.ToListAsync();
-            return students;
+            return await _studentRepository.GetAllAsync();
         }
-        public async Task<Student?> GetStudent(int Id)
+
+        public async Task<Students?> GetStudent(int id)
         {
-            return await _db.Students.FindAsync(Id);
-
-
+            return await _studentRepository.GetByIdAsync(id);
         }
-        public async Task<CreateStudentDto> CreateStudent(CreateStudentDto createStudentDto)
+
+        public async Task<CreateStudentDto> CreateStudent(CreateStudentDto dto)
         {
-            var student = new Student()
+            var student = new Students
             {
-                Name = createStudentDto.Name,
-                Gender = createStudentDto.Gender,
-                Gpa = createStudentDto.Gpa,
-                Age = createStudentDto.Age,
+                Name = dto.Name,
+                Gender = dto.Gender,
+                Gpa = dto.Gpa,
+                Age = dto.Age
             };
-            await _db.Students.AddAsync(student);
-            await _db.SaveChangesAsync();
-            var AddStudent = new CreateStudentDto
-            {
-                Gender = student.Gender,
-                Name = student.Name,
-                Age = student.Age,
-                Gpa = student.Gpa,
-            };
-            return AddStudent;
-        }
 
-        public async Task<UpdateStudentDto?> UpdateStudent([FromBody] UpdateStudentDto updateStudentDto, int Id)
-        {
-            var student = await _db.Students.FindAsync(Id);
-            if (student == null)
-            {
-                return null;
-            }
-            student.Name = updateStudentDto.Name;
-            student.Gender = updateStudentDto.Gender;
-            student.Gpa = updateStudentDto.Gpa;
-            student.Age = updateStudentDto.Age;
-            var NewStudent = new UpdateStudentDto
+            await _studentRepository.AddAsync(student);
+            await _studentRepository.SaveChangesAsync();
+
+            return new CreateStudentDto
             {
                 Name = student.Name,
                 Gender = student.Gender,
                 Gpa = student.Gpa,
-                Age = student.Age,
+                Age = student.Age
             };
-
-            await _db.SaveChangesAsync();
-            return NewStudent;
         }
-        public async Task<Student> DeleteStudent(int Id)
+
+        public async Task<UpdateStudentDto?> UpdateStudent([FromBody] UpdateStudentDto dto, int id)
         {
-            var student = await _db.Students.FindAsync(Id);
-            if (student == null)
+            var student = await _studentRepository.GetByIdAsync(id);
+            if (student == null) return null;
+
+            student.Name = dto.Name;
+            student.Gender = dto.Gender;
+            student.Gpa = dto.Gpa;
+            student.Age = dto.Age;
+
+            await _studentRepository.UpdateAsync(student);
+            await _studentRepository.SaveChangesAsync();
+
+            return new UpdateStudentDto
             {
-                return null;
-            }
-            _db.Students.Remove(student);
-            await _db.SaveChangesAsync();
+                Name = student.Name,
+                Gender = student.Gender,
+                Gpa = student.Gpa,
+                Age = student.Age
+            };
+        }
+
+        public async Task<Students?> DeleteStudent(int id)
+        {
+            var student = await _studentRepository.GetByIdAsync(id);
+            if (student == null) return null;
+
+            await _studentRepository.DeleteAsync(student);
+            await _studentRepository.SaveChangesAsync();
             return student;
         }
     }
-
-
 }
